@@ -12,7 +12,7 @@ from tkinter import *
 class Robo:
     def __init__(self, posicao_x=0, posicao_y=0):
         self.velocidade = 0
-        self.aceleracao = 2.8 # Ref.: IC-Tavares-2007 (moodle)
+        self.aceleracao = 2.8 # Ref.: IC-Tastringes-2007 (moodle)
         self.pos_x0 = posicao_x
         self.pos_y0 = posicao_y
         self.raio = 0.09
@@ -22,6 +22,7 @@ class Robo:
         self.alcance = 0.09
         self.pos_x = posicao_x
         self.pos_y = posicao_y
+        self.massa = 0.171
         
 
     def atualizaVelocidade(self, t):
@@ -65,6 +66,7 @@ class Bola:
         self.incpos_x = 0
         self.incpos_y = 0
         self.inct = 0
+        self.massa = 0.3
 
     def atualizaPosX(self, t): self.pos_x = (0.005*((t/100)**3))-(7 * ((t/100)**2) * (10**(-14))) + (0.5*(t/100)) +1
     def atualizaVelX(self, t): self.vel_x = (0.015*((t/100)**2)) - (0.0003*(t/100)) + 0.5
@@ -100,10 +102,6 @@ class Bola:
         Posição em X: {self.retornaPosX(t):.2f}
         Posição em Y: {self.retornaPosY(t):.2f}
         """)
-
-class Pag:
-    def __init__(self, num=0):
-        ind = num
 
 # -------------------------------
 
@@ -148,64 +146,7 @@ def decompoeDeslocamentoRobo(robo, bola):
 
 class graficosGUI:
 
-    def __init__(self):
-        calcular_intercept(robo=robo, bola=bola)
-        equacaoDeslocamentoRetaRobo(robo=robo, bola=bola)
-        
-        th = atan(robo.coefAngular)
-        listaXrobo = []
-        listaYrobo = []
-        listaXbola = []
-        listaYbola = []
-        eixoX = []
-        vx_bola = []
-        vy_bola = []
-        vx_robo = []
-        vy_robo = []
-        ax_bola = []
-        ay_bola = []
-        ax_robo = []
-        ay_robo = []
-        ax_bola = []
-        ay_bola = []
-        ax_robo = []
-        ay_robo = []
-        listaDist = []
-        i = 0
-        distGrf = 10
-        auxPos = 0
-        while i < bola.inct:
-
-            robo.atualizaAlcance(i)
-            decompoeDeslocamentoRobo(robo=robo, bola=bola)
-            velMedia = (robo.retornaVelocidade(0) + robo.retornaVelocidade(t=i)) / 2
-
-            if robo.pos_x0 >= bola.retornaPosX(0):
-                listaXrobo.append((robo.pos_x0 - (robo.retornaAlcance(i) * (velMedia*cos(th)))))
-                listaYrobo.append((robo.pos_y0 - (robo.retornaAlcance(i) * (velMedia*sin(th)))))
-            else:
-                listaXrobo.append(robo.pos_x0 + (robo.alcance * cos(th)))
-                listaYrobo.append(robo.pos_y0 + (robo.alcance * sin(th)))
-            distGrf = sqrt((bola.retornaPosX(i) - (listaXrobo[auxPos]))**2 + (bola.retornaPosY(i) - (listaYrobo[auxPos]))**2)    
-            listaDist.append(distGrf)
-            listaXbola.append(bola.retornaPosX(t=i))
-            listaYbola.append(bola.retornaPosY(t=i))
-            eixoX.append(i)
-            vx_bola.append(bola.retornaVelX(i))
-            vy_bola.append(bola.retornaVelY(i))
-            vx_robo.append(robo.retornaVelocidade(i)*cos(th))
-            vy_robo.append(robo.retornaVelocidade(i)*sin(th))
-            ax_bola.append(bola.retornaAclX(i))
-            ay_bola.append(bola.acel_y)
-            ax_robo.append(robo.aceleracao*cos(th))
-            ay_robo.append(robo.aceleracao*sin(th))
-            i += 0.01
-            auxPos += 1
-        for i in range(len(listaDist)):
-            if listaDist[i] < robo.raio + bola.raio:
-                bola.inct = i
-                print(f"bola.inct = {bola.inct}")
-                break    
+    def __init__(self, bola):
         
         def plot1():
             ax1.scatter(listaXrobo, listaYrobo, c='r', label= 'robo')
@@ -248,8 +189,8 @@ class graficosGUI:
         self.titulo = tk.Label(self.janelaPrincipal, text ="Gráficos", font=('Inter', 32))
         self.titulo.pack(padx=10, pady=10, anchor="nw")
 
-        self.botAprofundamento = tk.Button(self.janelaPrincipal, text="Aprofundamento >", font=('inter', 14))
-        self.botAprofundamento.place(x=1200, y=800)
+        self.botAprofundamento = tk.Button(self.janelaPrincipal, text="Aprofundamento >", font=('inter', 14), command=self.onClosingbotao)
+        self.botAprofundamento.pack(anchor='se', padx=5)
 
         self.nb = ttk.Notebook(self.janelaPrincipal, width=1400, height=900)
 
@@ -263,7 +204,7 @@ class graficosGUI:
         fonteEixo = {'family' : 'sans serif', 'size' : 15}
 
         self.fig1, ax1=plt.subplots(figsize=(12, 8))
-        self.fig1, plt.title("Trajetórias", loc='left', pad=10, fontdict=fonteTitulo)
+        self.fig1, plt.title("Trajetórias no campo", loc='left', pad=10, fontdict=fonteTitulo)
         self.fig1, plt.xlim([0, 9])
         self.fig1, plt.ylim([0, 6])
         self.fig1, plt.xlabel('X (m)', fontdict=fonteEixo, labelpad=5)
@@ -276,7 +217,7 @@ class graficosGUI:
         self.button1.pack(pady=10)
 
         self.fig2, ax2=plt.subplots(figsize=(12,8))
-        self.fig2, plt.title("Coordenadas em função do tempo", loc='left', fontdict=fonteTitulo)
+        self.fig2, plt.title("Coordenadas (X e Y) em função do tempo", loc='left', fontdict=fonteTitulo)
         self.fig2, plt.xlim([0, bola.inct/100])
         self.fig2, plt.xlabel('Tempo (em centésimos de segundo)', fontdict=fonteEixo, labelpad=5)
         self.fig2, plt.ylabel('Posição (m)', fontdict=fonteEixo, labelpad=5)
@@ -336,6 +277,11 @@ class graficosGUI:
 
     def onClosing(self):
         self.janelaPrincipal.destroy()
+        exit
+
+    def onClosingbotao(self):
+        self.janelaPrincipal.destroy()
+        aprofundamentoGUI(bola=bola)
 
 class inicioGUI:
     
@@ -372,7 +318,7 @@ class inicioGUI:
 
         self.frameCompleto.pack(anchor="center")
 
-        self.button = tk.Button(self.conteudo, text="Iniciar", font=('Arial', 18), command=lambda:self.iniciar(robo, bola, pag))
+        self.button = tk.Button(self.conteudo, text="Iniciar", font=('Arial', 18), command=lambda:self.iniciar(robo))
         self.button.pack(padx=10, pady=10)
 
         self.conteudo.pack(expand=1)
@@ -380,7 +326,7 @@ class inicioGUI:
         self.janelaPrincipal.protocol("WM_DELETE_WINDOW", self.onClosing)
         self.janelaPrincipal.mainloop()
 
-    def iniciar(self, robo, bola, pag):
+    def iniciar(self, robo):
         robo.pos_x0 = float(self.valorX_InicialRobo.get())
         robo.pos_y0 = float(self.valorY_InicialRobo.get())
         self.janelaPrincipal.destroy()
@@ -400,22 +346,117 @@ class aprofundamentoGUI:
         self.titulo = tk.Label(self.janelaAprofundamento, text="Aprofundamento", font=('Inter', 32))
         self.titulo.pack(padx=10, pady=10, anchor="nw")
 
-        self.tituloSlider = tk.Label(self.janelaAprofundamento, text="Tempo (em centésimos de segundo)", font=('Helvetica Neue', 20))
-        self.tituloSlider.pack()
-        self.textodeteste = tk.StringVar()
+        self.botAprofundamento = tk.Button(self.janelaAprofundamento, text="Gráficos >", font=('inter', 14), command=self.onClosingbotao)
+        self.botAprofundamento.pack(anchor='se', padx=5)
 
-        self.auxSlider = tk.DoubleVar()
-        self.slider = tk.Scale(self.janelaAprofundamento, variable=self.textodeteste, from_=0, to=(auxTempoInc/100), orient=HORIZONTAL, length="1000")
+        self.tituloSlider = tk.Label(self.janelaAprofundamento, text="Tempo (em centésimos de segundo)", font=('Inter', 20))
+        self.tituloSlider.pack()
+
+        self.valorDoSlider = tk.IntVar()
+
+        self.slider = tk.Scale(self.janelaAprofundamento, variable=self.valorDoSlider, from_=0, to=(bola.inct/100), orient=HORIZONTAL, length="1000")
         self.slider.pack(anchor=CENTER)
 
-        self.button = tk.Button(self.janelaAprofundamento, text="Exibir informações", command=self.janelaAprofundamento.update_idletasks())
-        self.button.pack(anchor=CENTER)
+        self.botaoAtualizar = tk.Button(self.janelaAprofundamento, text="Atualizar valores", font=('Inter', 20), bg='blue', command=self.atualizar)
+        self.botaoAtualizar.pack(anchor=CENTER, pady=5)
 
-        self.labelteste = tk.Label(self.janelaAprofundamento, textvariable=self.textodeteste, font=('Helvetica Neue', 20))
+        self.labelteste = tk.Label(self.janelaAprofundamento, textvariable=self.valorDoSlider, font=('Inter', 20))
         self.labelteste.pack(anchor=CENTER, pady=10)
 
+        self.varPx_robo = tk.DoubleVar()
+        self.varPy_robo = tk.DoubleVar()
+        self.varV_robo = tk.DoubleVar()
+        self.varA_robo = tk.DoubleVar()
+        self.varPx_bola = tk.DoubleVar()
+        self.varPy_bola = tk.DoubleVar()
+        self.varV_bola = tk.DoubleVar()
+        self.varA_bola = tk.DoubleVar()
+        self.varFr_robo = tk.DoubleVar()
+        self.varAr_bola = tk.DoubleVar()
+
+        self.stringPx_robo = tk.StringVar() 
+        self.stringPy_robo = tk.StringVar() 
+        self.stringV_robo = tk.StringVar() 
+        self.stringA_robo = tk.StringVar() 
+        self.stringPx_bola = tk.StringVar() 
+        self.stringPy_bola = tk.StringVar() 
+        self.stringV_bola = tk.StringVar()
+        self.stringA_bola = tk.StringVar()
+        self.stringFr_robo = tk.StringVar()
+        self.stringAr_bola = tk.StringVar()
+
+        self.labelFrame = tk.LabelFrame(self.janelaAprofundamento, labelanchor='n', font=('Inter', 16))
+        self.labelFrame.pack(ipadx=1300, ipady=600)
+
+        self.labelFrame.columnconfigure((0, 1, 2, 3, 4), weight=1)
+        self.labelFrame.rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
+
+        self.labelPx_robo = tk.Label(self.labelFrame, textvariable=self.stringPx_robo,font=('Inter', 16))
+        self.labelPx_robo.grid(row=0, column=1, sticky='w')
+        self.labelPy_robo = tk.Label(self.labelFrame, textvariable=self.stringPy_robo, font=('Inter', 16))
+        self.labelPy_robo.grid(row=1, column=1, sticky='w')
+        self.labelV_robo = tk.Label(self.labelFrame, textvariable=self.stringV_robo, font=('Inter', 16))
+        self.labelV_robo.grid(row=2, column=1, sticky='w')
+        self.labelA_robo = tk.Label(self.labelFrame, textvariable=self.stringA_robo, font=('Inter', 16))
+        self.labelA_robo.grid(row=3, column=1, sticky='w')
+        self.labelFr_robo = tk.Label(self.labelFrame, textvariable=self.stringFr_robo, font=('Inter', 16))
+        self.labelFr_robo.grid(row=4, column=1, sticky='w')
+
+        self.labelPx_bola = tk.Label(self.labelFrame, textvariable=self.stringPx_bola, font=('Inter', 16))
+        self.labelPx_bola.grid(row=0, column=3, sticky='w')
+        self.labelPy_bola = tk.Label(self.labelFrame, textvariable=self.stringPy_bola, font=('Inter', 16))
+        self.labelPy_bola.grid(row=1, column=3, sticky='w')
+        self.labelV_bola = tk.Label(self.labelFrame, textvariable=self.stringV_bola, font=('Inter', 16))
+        self.labelV_bola.grid(row=2, column=3, sticky='w')
+        self.labelA_bola = tk.Label(self.labelFrame, textvariable=self.stringA_bola, font=('Inter', 16))
+        self.labelA_bola.grid(row=3, column=3, sticky='w')
+        self.labelAr_bola = tk.Label(self.labelFrame, textvariable=self.stringAr_bola, font=('Inter', 16))
+        self.labelAr_bola.grid(row=4, column=3, sticky='w')
+
+        self.labelObs = tk.Label(self.labelFrame, text="*F -> força aplicada pelo robô ao entrar em contato com um objeto\n**A -> aceleração causada pelo impacto do robô na bola caso ocorra no tempo indicado", font=('Inter', 8), anchor='w')
+        self.labelObs.grid(column=0, row=5, columnspan=2, sticky='sw', pady=5, padx=5)
+
+        self.janelaAprofundamento.protocol("WM_DELETE_WINDOW", self.onClosing)
         self.janelaAprofundamento.mainloop()
 
+    def onClosing(self):
+        self.janelaAprofundamento.destroy()
+        exit
+
+    def onClosingbotao(self):
+        self.janelaAprofundamento.destroy()
+        graficosGUI()
+
+    def atualizar(self):
+        if robo.pos_x0 >= bola.retornaPosX(0):
+            self.varPx_robo.set(robo.pos_x0 - (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*cos(th))))
+            self.varPy_robo.set(robo.pos_y0 - (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*sin(th))))
+        else:
+            self.varPx_robo.set(robo.pos_x0 + (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*cos(th))))
+            self.varPy_robo.set(robo.pos_y0 - (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*sin(th))))
+        if self.valorDoSlider.get() == 0:
+            self.varPx_robo.set(robo.pos_x0)
+            self.varPy_robo.set(robo.pos_y0)
+        self.varV_robo.set(robo.retornaVelocidade(self.valorDoSlider.get()))
+        self.varA_robo.set(robo.aceleracao)
+        self.varFr_robo.set(robo.massa * self.varV_robo.get())
+        self.varPx_bola.set(bola.retornaPosX(self.valorDoSlider.get()))
+        self.varPy_bola.set(bola.retornaPosY(self.valorDoSlider.get()))
+        self.varV_bola.set(sqrt(bola.retornaVelX(self.valorDoSlider.get())**2 + bola.retornaVelY(self.valorDoSlider.get())**2))
+        self.varA_bola.set(sqrt(bola.retornaAclX(self.valorDoSlider.get())**2 + bola.acel_y**2))
+        self.varAr_bola.set(self.varFr_robo.get() * bola.massa)
+
+        self.stringPx_robo.set(f"Posição do robô em X: {self.varPx_robo.get():.2f}m")
+        self.stringPy_robo.set(f"Posição do robô em Y: {self.varPy_robo.get():.2f}m")
+        self.stringV_robo.set(f"Velocidade do robô: {self.varV_robo.get():.2f}m/s")
+        self.stringA_robo.set(f"Aceleração do robô: {self.varA_robo.get():.2f}m/s²")
+        self.stringFr_robo.set(f"F* do robô: {self.varFr_robo.get():.2f}N")
+
+        self.stringPx_bola.set(f"Posição da bola em X: {self.varPx_bola.get():.2f}m")
+        self.stringPy_bola.set(f"Posição da bola em Y: {self.varPy_bola.get():.2f}m")
+        self.stringV_bola.set(f"Velocidade da bola: {self.varV_bola.get():.2f}m/s")
+        self.stringA_bola.set(f"Aceleração da bola: {self.varA_bola.get():.2f}m/s²")
+        self.stringAr_bola.set(f"A** da bola: {self.varAr_bola.get():.2f}m/s²")
 # -------------------------------------------
 
 # ---- INICIALIZAÇÃO DOS OBJETOS PARA EXECUÇÃO DO PROGRAMA PRINCIPAL ----
@@ -424,14 +465,65 @@ robo = Robo()
 
 bola = Bola()
 
-pag = Pag()
-
 # -----------------------------------------------------------------------
 
 inicioGUI() # INICIALIZAÇÃO DA INTERFACE GRÁFICA DO INÍCIO DO PROGRAMA
 
-auxTempoInc = bola.inct # VARIÁVEL QUE VAI ARMAZENAR O MOMENTO NO TEMPO EM QUE OCORRE A INTERCEPTAÇÃO
+calcular_intercept(robo=robo, bola=bola)
+equacaoDeslocamentoRetaRobo(robo=robo, bola=bola)
+        
+th = atan(robo.coefAngular)
+listaXrobo = []
+listaYrobo = []
+listaXbola = []
+listaYbola = []
+eixoX = []
+vx_bola = []
+vy_bola = []
+vx_robo = []
+vy_robo = []
+ax_bola = []
+ay_bola = []
+ax_robo = []
+ay_robo = []
+ax_bola = []
+ay_bola = []
+ax_robo = []
+ay_robo = []
+listaDist = []
+i = 0
+distGrf = 10
+auxPos = 0
+while i < bola.inct:
+    robo.atualizaAlcance(i)
+    decompoeDeslocamentoRobo(robo=robo, bola=bola)
+    velMedia = (robo.retornaVelocidade(0) + robo.retornaVelocidade(t=i)) / 2
 
-graficosGUI()
-print(f"auxtempoinc = {bola.inct}")
-aprofundamentoGUI(bola=bola)
+    if robo.pos_x0 >= bola.retornaPosX(0):
+        listaXrobo.append((robo.pos_x0 - (robo.retornaAlcance(i) * (velMedia*cos(th)))))
+        listaYrobo.append((robo.pos_y0 - (robo.retornaAlcance(i) * (velMedia*sin(th)))))
+    else:
+        listaXrobo.append(robo.pos_x0 + (robo.alcance * cos(th)))
+        listaYrobo.append(robo.pos_y0 + (robo.alcance * sin(th)))
+    distGrf = sqrt((bola.retornaPosX(i) - (listaXrobo[auxPos]))**2 + (bola.retornaPosY(i) - (listaYrobo[auxPos]))**2)    
+    listaDist.append(distGrf)
+    listaXbola.append(bola.retornaPosX(t=i))
+    listaYbola.append(bola.retornaPosY(t=i))
+    eixoX.append(i)
+    vx_bola.append(bola.retornaVelX(i))
+    vy_bola.append(bola.retornaVelY(i))
+    vx_robo.append(robo.retornaVelocidade(i)*cos(th))
+    vy_robo.append(robo.retornaVelocidade(i)*sin(th))
+    ax_bola.append(bola.retornaAclX(i))
+    ay_bola.append(bola.acel_y)
+    ax_robo.append(robo.aceleracao*cos(th))
+    ay_robo.append(robo.aceleracao*sin(th))
+    i += 0.01
+    auxPos += 1
+for i in range(len(listaDist)):
+    if listaDist[i] < robo.raio + bola.raio:
+        bola.inct = i
+        print(f"bola.inct = {bola.inct}")
+        break    
+
+graficosGUI(bola=bola)
