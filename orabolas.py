@@ -183,11 +183,10 @@ class graficosGUI:
             self.canvas5.draw()
 
         self.janelaPrincipal = tk.Tk()
-        self.janelaPrincipal.geometry("1440x1000")
+        self.janelaPrincipal.geometry("933x720")
         self.janelaPrincipal.title("Projeto OraBolas - Gráficos")
-
         self.titulo = tk.Label(self.janelaPrincipal, text ="Gráficos", font=('Inter', 32))
-        self.titulo.pack(padx=10, pady=10, anchor="nw")
+        self.titulo.pack(padx=10, pady=3, anchor="nw")
 
         self.botAprofundamento = tk.Button(self.janelaPrincipal, text="Aprofundamento >", font=('inter', 14), command=self.onClosingbotao)
         self.botAprofundamento.pack(anchor='se', padx=5)
@@ -212,9 +211,7 @@ class graficosGUI:
 
         self.canvas1 = FigureCanvasTkAgg(self.fig1, self.frame1)
         self.canvas1.get_tk_widget().pack()
-
-        self.button1 = tk.Button(self.frame1, text="Desenhar gráfico", command = plot1)
-        self.button1.pack(pady=10)
+        plot1()
 
         self.fig2, ax2=plt.subplots(figsize=(12,8))
         self.fig2, plt.title("Coordenadas (X e Y) em função do tempo", loc='left', fontdict=fonteTitulo)
@@ -224,9 +221,7 @@ class graficosGUI:
 
         self.canvas2 = FigureCanvasTkAgg(self.fig2, self.frame2)
         self.canvas2.get_tk_widget().pack()
-
-        self.button2 = tk.Button(self.frame2, text="Desenhar gráfico", command= plot2)
-        self.button2.pack(pady=10)
+        plot2()
         
         self.fig3, ax3=plt.subplots(figsize=(12, 8))
         self.fig3, plt.title("Velocidades (X e Y) em função do tempo", loc='left', pad=10, fontdict=fonteTitulo)
@@ -236,9 +231,7 @@ class graficosGUI:
 
         self.canvas3 = FigureCanvasTkAgg(self.fig3, self.frame3)
         self.canvas3.get_tk_widget().pack()
-
-        self.button3 = tk.Button(self.frame3, text="Desenhar gráfico", command=plot3)
-        self.button3.pack(pady=10)
+        plot3()
         
         self.fig4, ax4=plt.subplots(figsize=(12, 8))
         self.fig4, plt.title("Acelerações (X e Y) em função do tempo", loc='left', pad=10, fontdict=fonteTitulo)
@@ -248,9 +241,7 @@ class graficosGUI:
 
         self.canvas4 = FigureCanvasTkAgg(self.fig4, self.frame4)
         self.canvas4.get_tk_widget().pack()
-
-        self.button4 = tk.Button(self.frame4, text="Desenhar gráfico", command=plot4)
-        self.button4.pack(pady=10)
+        plot4
         
         self.fig5, ax5=plt.subplots(figsize=(12, 8))
         self.fig5, plt.title("Distância em função do tempo", loc='left', pad=10, fontdict=fonteTitulo)
@@ -260,9 +251,7 @@ class graficosGUI:
 
         self.canvas5 = FigureCanvasTkAgg(self.fig5, self.frame5)
         self.canvas5.get_tk_widget().pack()
-
-        self.button5 = tk.Button(self.frame5, text="Desenhar gráfico", command=plot5)
-        self.button5.pack(pady=10)
+        plot5()
 
         self.nb.add(self.frame1, text = "Gráfico 1")
         self.nb.add(self.frame2, text = "Gráfico 2")
@@ -288,7 +277,7 @@ class inicioGUI:
     def __init__(self):    
 
         self.janelaPrincipal = tk.Tk()
-        self.janelaPrincipal.geometry("1440x1000")
+        self.janelaPrincipal.geometry("933x720")
         self.janelaPrincipal.title("Projeto OraBolas")
 
         self.titulo = tk.Label(self.janelaPrincipal, text="Projeto OraBolas - CF2111", font=('Inter', 32))
@@ -340,7 +329,7 @@ class aprofundamentoGUI:
     def __init__(self, bola):
 
         self.janelaAprofundamento = tk.Tk()
-        self.janelaAprofundamento.geometry("1440x1000")
+        self.janelaAprofundamento.geometry("933x720")
         self.janelaAprofundamento.title("Projeto OraBolas")
         
         self.titulo = tk.Label(self.janelaAprofundamento, text="Aprofundamento", font=('Inter', 32))
@@ -425,7 +414,7 @@ class aprofundamentoGUI:
 
     def onClosingbotao(self):
         self.janelaAprofundamento.destroy()
-        graficosGUI()
+        graficosGUI(bola=bola)
 
     def atualizar(self):
         if robo.pos_x0 >= bola.retornaPosX(0):
@@ -433,7 +422,7 @@ class aprofundamentoGUI:
             self.varPy_robo.set(robo.pos_y0 - (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*sin(th))))
         else:
             self.varPx_robo.set(robo.pos_x0 + (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*cos(th))))
-            self.varPy_robo.set(robo.pos_y0 - (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*sin(th))))
+            self.varPy_robo.set(robo.pos_y0 + (robo.retornaAlcance(self.valorDoSlider.get()) * (velMedia*sin(th))))
         if self.valorDoSlider.get() == 0:
             self.varPx_robo.set(robo.pos_x0)
             self.varPy_robo.set(robo.pos_y0)
