@@ -241,7 +241,7 @@ class graficosGUI:
 
         self.canvas4 = FigureCanvasTkAgg(self.fig4, self.frame4)
         self.canvas4.get_tk_widget().pack()
-        plot4
+        plot4()
         
         self.fig5, ax5=plt.subplots(figsize=(12, 8))
         self.fig5, plt.title("Distância em função do tempo", loc='left', pad=10, fontdict=fonteTitulo)
